@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Passos de Vaelis</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=IM+Fell+English&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+margin:0;
+background:#050505;
+color:white;
+font-family:'IM Fell English',serif;
+overflow-x:hidden;
+}
+
+/* PARTICULAS */
+
+canvas{
+position:fixed;
+top:0;
+left:0;
+z-index:-3;
+}
+
+/* NÉVOA */
+
+.fog{
+position:fixed;
+top:0;
+left:0;
+width:200%;
+height:200%;
+background:url("https://i.imgur.com/8yKXslG.png");
+opacity:0.08;
+animation:fogmove 120s linear infinite;
+z-index:-2;
+}
+
+@keyframes fogmove{
+0%{transform:translateX(0)}
+100%{transform:translateX(-50%)}
+}
+
+/* HEADER */
+
+header{
+height:100vh;
+background:url("Vaelis.png") center/cover fixed;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+text-align:center;
+}
+
+h1{
+font-family:'Cinzel';
+font-size:70px;
+letter-spacing:4px;
+}
+
+h2{
+font-family:'Cinzel';
+font-size:38px;
+color:#d4b37a;
+text-align:center;
+}
+
+/* SEÇÕES */
+
+section{
+padding:120px 10%;
+background:url("https://www.transparenttextures.com/patterns/old-paper.png");
+background-color:#1a140b;
+box-shadow:inset 0 0 80px rgba(0,0,0,0.8);
+}
+
+/* HISTORIA */
+
+.livro{
+max-width:800px;
+margin:auto;
+}
+
+.pagina{
+background:#1b1b1b;
+padding:40px;
+border-radius:10px;
+transition:transform 0.6s;
+}
+
+.pagina.virando{
+transform:rotateY(-180deg);
+}
+
+.ato{
+display:none;
+}
+
+.ato.active{
+display:block;
+}
+
+.story-controls{
+margin-top:30px;
+display:flex;
+justify-content:center;
+gap:20px;
+}
+
+.story-controls button{
+background:linear-gradient(#6b4b1f,#3a260e);
+border:2px solid #c9a25a;
+color:#f1e4c3;
+padding:12px 20px;
+font-family:'Cinzel';
+border-radius:8px;
+cursor:pointer;
+}
+
+/* TIMELINE */
+
+.timeline{
+position:relative;
+max-width:1000px;
+margin:auto;
+padding-top:60px;
+}
+
+.timeline::before{
+content:'';
+position:absolute;
+left:50%;
+top:0;
+width:4px;
+height:100%;
+background:#222;
+transform:translateX(-50%);
+}
+
+.timeline-progress{
+position:absolute;
+left:50%;
+top:0;
+width:4px;
+height:0;
+transform:translateX(-50%);
+background:linear-gradient(#ff4fa3,#ff89c7);
+box-shadow:0 0 20px #ff4fa3;
+}
+
+.evento{
+position:relative;
+width:45%;
+padding:20px;
+background:#111;
+border-radius:12px;
+margin:80px 0;
+}
+
+.evento img{
+width:100%;
+border-radius:10px;
+margin-bottom:10px;
+}
+
+.evento.right{left:55%;}
+.evento.left{left:0;}
+
+/* ECOS */
+
+.ecos{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:30px;
+}
+
+.eco{
+background:#111;
+border:1px solid #5a3c18;
+padding:30px;
+border-radius:12px;
+cursor:pointer;
+font-family:'Cinzel';
+transition:0.4s;
+}
+
+.eco:hover{
+transform:scale(1.05);
+box-shadow:0 0 20px #c9a25a;
+}
+
+.eco span{
+font-size:28px;
+display:block;
+margin-bottom:10px;
+}
+
+/* MODAL */
+
+.modal{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.95);
+display:none;
+justify-content:center;
+align-items:center;
+z-index:999;
+}
+
+.modal-box{
+background:#111;
+padding:40px;
+border-radius:10px;
+max-width:600px;
+border:1px solid #c9a25a;
+}
+
+/* PLAYER */
+
+.player{
+position:fixed;
+bottom:20px;
+left:20px;
+}
+
+.player button{
+background:linear-gradient(#6b4b1f,#3a260e);
+border:2px solid #c9a25a;
+color:#f1e4c3;
+padding:10px 18px;
+font-family:'Cinzel';
+border-radius:8px;
+cursor:pointer;
+}
+
+/* MOBILE */
+
+@media(max-width:800px){
+
+.timeline::before{left:20px;}
+.timeline-progress{left:20px;}
+
+.evento{
+width:90%;
+left:40px !important;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="fog"></div>
+<canvas id="particles"></canvas>
+
+<header>
+
+<h1>VAELIS</h1>
+<p>Aquele amaldiçoado com a curiosidade.</p>
+
+</header>
+
+<section>
+
+<h2>História</h2>
+
+<div class="livro">
+
+<div class="pagina" id="pagina">
+
+<div class="ato active">
+<h3>Ato I — A origem</h3>
+<p>Vaelis nasceu em uma pequena comunidade élfica escondida nas profundezas de uma floresta antiga. Entre seu povo, o tempo corria de maneira diferente do restante do mundo; as estações passavam tranquilamente, as gerações cresciam devagar e a vida era guiada por tradições antigas que mantinham a harmonia entre os elfos e a natureza. Durante seus primeiros anos, Vaelis viveu como qualquer outra criança da vila. Corria entre as árvores altas, observava os animais da floresta e escutava as histórias dos anciões ao redor das fogueiras noturnas. Nada parecia fora do comum em sua infância.</p>
+  <p>Por volta de seus dez ou doze anos, porém, algo começou a mudar em seu comportamento. Enquanto outras crianças demonstravam interesse em aprender a caçar ou a manejar o arco, Vaelis se sentia atraído por outra coisa. Perguntas surgiam em sua mente com frequência, curiosidades que pareciam surgir sem motivo aparente. Ele observava qualquer forma de escrita que encontrasse: símbolos gravados em pedras antigas, marcas em árvores, pequenos registros deixados por viajantes que por vezes cruzavam a floresta. Era como se sua mente estivesse procurando algo, mesmo sem saber exatamente o quê.</p>
+  <p>Foi durante um de seus passeios solitários pela floresta que sua vida mudou pela primeira vez. Caminhando por uma trilha que já percorrera inúmeras vezes, o chão subitamente cedeu sob seus pés. A terra se rompeu e Vaelis caiu por um buraco oculto, rolando por terra solta e pedras até parar no fundo de uma câmara subterrânea. O lugar parecia antigo, silencioso de uma maneira quase inquietante, como se estivesse esquecido pelo mundo havia séculos. No centro da câmara havia duas grandes tabuletas de pedra posicionadas em lados opostos da sala, ambas cobertas por símbolos que Vaelis nunca havia visto antes.</p>
+  <p>Mesmo sendo apenas uma criança, ele percebeu algo estranho quase imediatamente: as duas inscrições não pertenciam ao mesmo idioma. Uma delas possuía formas rígidas e precisas, linhas retas e símbolos geométricos que pareciam gravados com exatidão quase perfeita. A outra, porém, parecia diferente, seus símbolos eram curvos, complexos e estranhamente orgânicos, como se possuíssem algum tipo de movimento próprio quando observados por muito tempo. Impulsionado por uma curiosidade que não conseguia explicar, Vaelis se aproximou para observá-las melhor.
+Por um breve instante, algo aconteceu dentro de sua mente.
+Não foi como aprender um idioma, nem como decifrar um enigma. Foi mais parecido com lembrar algo que sempre estivera ali. Durante aquele momento fugaz, os símbolos fizeram sentido. Ele compreendeu as inscrições como se sempre tivesse sabido o que significavam.
+E então tudo desapareceu.</p>
+  <p>Quando voltou a si, Vaelis estava novamente na trilha da floresta, alguns passos antes do ponto onde lembrava ter caído. Confuso, voltou ao local onde acreditava que o buraco deveria estar, mas não encontrou absolutamente nada. O chão estava intacto, sem qualquer sinal de terra quebrada ou passagem subterrânea. A trilha parecia exatamente como sempre fora.</p>
+  <p>Vaelis nunca contou a ninguém sobre o que aconteceu naquele dia. No entanto, algo havia mudado dentro dele. Ele sabia que havia lido aquelas tabuletas, mas sempre que tentava recordar os símbolos com clareza, as imagens se tornavam confusas em sua mente, como se as letras dançassem em seus pensamentos antes que pudesse compreendê-las novamente. Foi nesse momento que nasceu uma inquietação silenciosa dentro dele, uma busca que ainda não tinha nome, mas que jamais o abandonaria.</p>
+  <p>Durante os cem anos que se seguiram, Vaelis permaneceu em sua vila, vivendo aparentemente como qualquer outro elfo. Ele não demonstrava estranheza ou obsessão diante de seus parentes, mantendo para si o segredo daquilo que havia visto. Mesmo assim, algo dentro dele continuava procurando respostas. Livros, idiomas e registros antigos começaram a ocupar cada vez mais espaço em seus interesses. Com o passar das décadas, tornou-se evidente para ele que o conhecimento que buscava dificilmente seria encontrado em uma pequena comunidade escondida na floresta.</p>
+  <p>Quando finalmente decidiu partir, explicou a todos que desejava estudar o mundo além da floresta. Seus parentes aceitaram sua decisão sem questionamentos, pois a curiosidade sempre fora uma característica comum entre os elfos. Assim, Vaelis deixou sua terra natal e iniciou uma jornada que o levaria muito mais longe do que imaginava.</p>
+</div>
+
+<div class="ato">
+<h3>Ato II — O despertar</h3>
+<p>A jornada de Vaelis terminou em uma grande metrópole, um lugar onde estudiosos, comerciantes e viajantes de inúmeras terras diferentes se encontravam diariamente. Para alguém movido pela busca de conhecimento, aquele era o ambiente perfeito; Ali, Vaelis mergulhou completamente nos estudos; Aprendeu novos idiomas, trabalhou como tradutor e copista, auxiliou pesquisadores em seus trabalhos e passou anos frequentando bibliotecas e círculos acadêmicos.</p>
+  <p>Com o tempo, seu talento para compreender sistemas linguísticos complexos começou a chamar atenção. Seu nome tornou-se conhecido entre estudiosos da cidade, não como uma grande autoridade, mas como alguém respeitado por sua mente analítica e sua habilidade incomum para interpretar idiomas raros ou fragmentados.
+Ainda assim, as respostas que procurava continuavam fora de alcance.</p>
+  <p>Com o tempo, seu talento para compreender sistemas linguísticos complexos começou a chamar atenção. Seu nome tornou-se conhecido entre estudiosos da cidade, não como uma grande autoridade, mas como alguém respeitado por sua mente analítica e sua habilidade incomum para interpretar idiomas raros ou fragmentados.
+Ainda assim, as respostas que procurava continuavam fora de alcance.</p>
+  <p>Foi durante um encontro entre pesquisadores que algo finalmente mudou. Enquanto conversava com outros convidados, Vaelis ouviu acidentalmente uma conversa sobre certos documentos raros pertencentes a uma coleção privada. Segundo os estudiosos que comentavam sobre eles, aqueles textos apresentavam uma estrutura linguística incomum, com características que lembravam tanto idiomas celestiais quanto infernais, mas sem pertencer completamente a nenhum dos dois.
+Algo despertou imediatamente na mente de Vaelis.</p>
+  <p>Durante meses ele tentou obter acesso aos documentos por meios legítimos. Enviou pedidos formais, tentou negociar, procurou intermediários que pudessem convencê-los a permitir sua análise. Todas as tentativas foram recusadas. Os registros pertenciam a um colecionador extremamente reservado, alguém que raramente permitia que outros estudiosos examinassem sua coleção.
+Foi então que Vaelis tomou uma decisão.
+Se o conhecimento estava sendo escondido dele, ele o tomaria.</p>
+  <p>O roubo foi planejado com paciência e precisão. Quando finalmente conseguiu acessar os registros, percebeu imediatamente que estava diante de algo extremamente importante. Os símbolos presentes nos documentos possuíam semelhanças claras com aquilo que ele lembrava vagamente das tabuletas da cripta. No entanto, também percebeu algo frustrante: os textos estavam incompletos. Eram apenas fragmentos de algo maior.</p>
+  <p>Enquanto examinava os documentos, o dono da coleção apareceu.
+O confronto foi breve.
+Uma pressão intensa surgiu na mente de Vaelis, como se algo dentro dele estivesse despertando pela primeira vez. Uma lâmina formada puramente de energia psíquica manifestou-se em sua mão quase instintivamente. O ataque foi rápido e silencioso. Quando percebeu o que havia feito, o homem já estava morto no chão, sem ferimentos aparentes, como se sua vida tivesse simplesmente se apagado.</p>
+  <p>Aquela noite marcou duas mudanças profundas na vida de Vaelis: seu primeiro assassinato… e o despertar de seus poderes psíquicos.
+Nos anos seguintes, sua busca pelos fragmentos daquela linguagem misteriosa se tornou cada vez mais intensa. Sempre que descobria que alguém possuía textos relacionados àquele sistema de escrita, tentava obter acesso primeiro por meios legítimos. Quando isso falhava, recorria ao roubo. E quando o roubo dava errado… sua mente resolvia o problema.</p>
+  <p>Entre quinze e vinte estudiosos e colecionadores morreram ao longo dos anos seguintes. Oficialmente, todas as mortes pareciam naturais: ataques cardíacos, colapsos inexplicáveis, acidentes súbitos. Mesmo assim, rumores começaram a circular entre os círculos acadêmicos da cidade. Muitos passaram a acreditar que alguém estava eliminando aqueles que possuíam certos tipos de conhecimento.
+Um nome começou a surgir nas conversas sussurradas entre estudiosos.</p>
+  <p>Undyne.</p>
+  <p>Uma figura misteriosa, um assassino invisível que parecia atacar sem deixar vestígios. Apenas uma pessoa sobreviveu tempo suficiente para dizer algo sobre o agressor. Antes de morrer, apontou para um corredor mergulhado em escuridão e murmurou, com a voz fraca e tremendo entre o medo e a incredulidade:
+“Eu vi… na escuridão… os olhos dele… rosados… brilhando… como se a própria mente estivesse queimando.”
+A história se espalhou rapidamente, alimentando ainda mais a lenda.</p>
+  <p>Vaelis, porém, nunca se importou com isso. Para ele, aquelas mortes não eram assassinatos no sentido moral da palavra. Eram apenas obstáculos removidos de um caminho maior. Algumas vidas, afinal, não significavam nada quando comparadas ao valor do conhecimento que ele buscava</p>
+</div>
+
+<div class="ato">
+<h3>Ato III — Perto do fim?</h3>
+<p>Décadas de estudo permitiram que Vaelis reconstruísse grande parte da linguagem misteriosa que havia encontrado pela primeira vez quando ainda era uma criança. Ele comparou fragmentos, analisou padrões e dedicou incontáveis horas a traduzir os símbolos que havia reunido ao longo dos anos. Mesmo assim, algumas lacunas permaneciam.
+E todas pareciam apontar para o mesmo lugar.
+Um nome aparecia repetidamente nas interpretações possíveis dos fragmentos.
+Baróvia.</p>
+  <p>Uma terra distante, cercada por névoas densas e histórias sombrias, aparentemente isolada do restante do mundo. Segundo suas análises, havia uma grande possibilidade de que outros fragmentos daquela linguagem estivessem concentrados naquele lugar.
+Depois de quase três séculos de busca, Vaelis tomou sua decisão.
+Ele deixaria a metrópole para trás.
+Não houve despedidas nem explicações. Reuniu seus registros, levou apenas o necessário para continuar sua pesquisa e partiu silenciosamente pela estrada. Atrás dele, rumores sobre Undyne continuavam a circular entre estudiosos e colecionadores, cada vez mais distorcidos pelas histórias que surgiam.</p>
+  <p>Mas para Vaelis, aquilo não importava.
+Tudo o que realmente importava era descobrir a verdade por trás das duas tabuletas que havia encontrado quando ainda era uma criança perdida em uma floresta.
+Se as respostas realmente estavam em Baróvia…
+Ele as encontraria.
+Custasse o que custasse.</p>
+</div>
+
+</div>
+
+</div>
+
+<div class="story-controls">
+
+<button onclick="mudarAto(-1)">⬅ Voltar</button>
+<button onclick="mudarAto(1)">Avançar ➡</button>
+
+</div>
+
+</section>
+
+<section>
+
+<h2>Linha do Tempo</h2>
+
+<div class="timeline">
+
+<div class="timeline-progress" id="timelineBar"></div>
+
+<div class="evento right">
+<img src="Queda.png">
+<h3>A queda.</h3>
+<p>O lugar onde tudo se iniciou... ou acabou.</p>
+</div>
+
+<div class="evento left">
+<img src="Pesquisador.png">
+<h3>Pesquisador.</h3>
+<p>O conhecimento o elevou ao patamar necessário de sua busca.</p>
+</div>
+
+<div class="evento right">
+<img src="Assassinato.png">
+<h3>O despertar.</h3>
+<p>Quando tudo pareceu o fim... um novo caminho.</p>
+</div>
+
+<div class="evento left">
+<img src="Vaelis.png">
+<h3>A Queda</h3>
+<p>Nem toda escolha pode ser desfeita.</p>
+</div>
+
+<div class="evento right">
+<img src="Barovia.png">
+<h3>Undyne.</h3>
+<p>Perto de desvendar o mistério de sua vida, ele o fará não importe o custo.</p>
+</div>
+
+</div>
+
+</section>
+
+<section>
+
+<h2>Ecos de Vaelis</h2>
+
+<div class="ecos">
+
+<div class="eco" onclick="openEco('A outra faceta','Aquele nome se tornou uma lenda, da qual hoje ele carregava sobre seus ombros fazendo-o lembrar sempre de seu caminho trilhado')">
+<span>👤</span>Undyne
+</div>
+
+<div class="eco" onclick="openEco('Pesquisa','Séculos de busca resultaram no seu maior tesouro, vários livros e pergaminhos que carrega consigo em sua mochila, sua vida inteira está ali')">
+<span>📜</span>Anos de busca
+</div>
+
+<div class="eco" onclick="openEco('Mudança','Suas novas capacidades exigiram que ele se adaptasse àquela nova vida, seus poderes foram treinados em prol de acreditar que ele os controla, e não está sendo controlado.')">
+<span>🔮</span>Mente psiquica
+</div>
+
+<div class="eco" onclick="openEco('Marcas pelo mundo','Por onde passou seu nome ficou marcado, seja como pesquisador, estudioso, sábio ou até mesmo como o esquisito observador, mas sua fama o acompanhava.')">
+<span>🌫</span>Boatos
+</div>
+
+</div>
+
+</section>
+
+<div class="modal" id="modal">
+
+<div class="modal-box">
+
+<h2 id="ecoTitle"></h2>
+<p id="ecoText"></p>
+
+</div>
+
+</div>
+
+<div class="player">
+
+<button onclick="toggleMusic()">🎼 Música</button>
+
+<audio id="music" loop>
+<source src="musica.mp3">
+</audio>
+
+</div>
+
+<script>
+
+/* HISTORIA */
+
+let atoAtual=0
+const atos=document.querySelectorAll(".ato")
+const pagina=document.getElementById("pagina")
+
+function mudarAto(d){
+
+pagina.classList.add("virando")
+
+setTimeout(()=>{
+
+atos[atoAtual].classList.remove("active")
+
+atoAtual+=d
+
+if(atoAtual<0)atoAtual=0
+if(atoAtual>=atos.length)atoAtual=atos.length-1
+
+atos[atoAtual].classList.add("active")
+
+pagina.classList.remove("virando")
+
+},300)
+
+}
+
+/* TIMELINE CORRIGIDA */
+
+const bar=document.getElementById("timelineBar")
+const timeline=document.querySelector(".timeline")
+
+window.addEventListener("scroll",()=>{
+
+const rect=timeline.getBoundingClientRect()
+const alturaTimeline=timeline.offsetHeight
+
+let progresso=window.innerHeight-rect.top
+let porcentagem=progresso/alturaTimeline
+
+if(porcentagem<0)porcentagem=0
+if(porcentagem>1)porcentagem=1
+
+bar.style.height=(porcentagem*alturaTimeline)+"px"
+
+})
+
+/* ECOS */
+
+const modal=document.getElementById("modal")
+
+function openEco(t,x){
+
+document.getElementById("ecoTitle").innerText=t
+document.getElementById("ecoText").innerText=x
+
+modal.style.display="flex"
+
+}
+
+modal.onclick=()=>modal.style.display="none"
+
+/* MUSICA */
+
+function toggleMusic(){
+
+const m=document.getElementById("music")
+
+if(m.paused){m.play()}else{m.pause()}
+
+}
+
+/* PARTICULAS */
+
+const canvas=document.getElementById("particles")
+const ctx=canvas.getContext("2d")
+
+canvas.width=window.innerWidth
+canvas.height=window.innerHeight
+
+let p=[]
+
+for(let i=0;i<80;i++){
+
+p.push({
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+s:Math.random()*2,
+sp:Math.random()*0.5
+})
+
+}
+
+function anim(){
+
+ctx.clearRect(0,0,canvas.width,canvas.height)
+
+p.forEach(a=>{
+
+ctx.beginPath()
+ctx.arc(a.x,a.y,a.s,0,Math.PI*2)
+ctx.fillStyle="white"
+ctx.fill()
+
+a.y+=a.sp
+
+if(a.y>canvas.height){
+a.y=0
+a.x=Math.random()*canvas.width
+}
+
+})
+
+requestAnimationFrame(anim)
+
+}
+
+anim()
+
+</script>
+
+</body>
+</html>
